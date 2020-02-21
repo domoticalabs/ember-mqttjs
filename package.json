@@ -1,13 +1,13 @@
 {
   "name": "ember-mqttjs",
-  "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "1.0.0",
+  "description": "Ember async service for connecting to mqtt broker through mqtt.js library.",
   "keywords": [
     "ember-addon"
   ],
-  "repository": "",
+  "repository": "https://github.com/domoticalabs/ember-mqttjs.git",
   "license": "MIT",
-  "author": "",
+  "author": "Davide Ferrero",
   "directories": {
     "doc": "doc",
     "test": "tests"
