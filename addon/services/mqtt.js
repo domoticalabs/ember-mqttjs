@@ -112,21 +112,25 @@ export default class MqttService extends Service.extend(Evented) {
 
   onConnect() {
     this.connected = true;
+    this.trigger('mqtt-connected');
     this.fConnected();
   }
 
   onDisconnect() {
     this.connected = false;
+    this.trigger('mqtt-disconnected');
     this.fDisconnected();
   }
 
   onError() {
     this.connected = false;
+    this.trigger('mqtt-error');
     this.fDisconnected();
   }
 
   onReconnect() {
     this.connected = false;
+    this.trigger('mqtt-reconnect');
     let _self = this;
     this.fConnecting = new RSVP.Promise( (fResolve, fReject) => {
       _self.fConnected = fResolve;
@@ -136,10 +140,12 @@ export default class MqttService extends Service.extend(Evented) {
 
   onClose(){
     this.connected = false;
+    this.trigger('mqtt-close');
     this.fDisconnected();
   }
 
   onOffline(){
     this.connected = false;
+    this.trigger('mqtt-offline');
   }
 }

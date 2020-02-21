@@ -1,8 +1,7 @@
 'use strict';
 
 module.exports = {
-  description: ''
-
+  description: '',
   normalizeEntityName() {}, // no-op since we're just adding dependencies
   afterInstall() {
     return this.addPackagesToProject([
