@@ -1,4 +1,4 @@
-ember-mqttjs
+ember-mqttjs [![Build Status](https://travis-ci.com/domoticalabs/ember-mqttjs.svg?branch=master)](https://travis-ci.com/domoticalabs/ember-mqttjs)
 ==============================================================================
 
 Ember async service for connecting to mqtt broker through [mqttjs library](https://github.com/mqttjs/MQTT.js).
