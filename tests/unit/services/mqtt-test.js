@@ -28,6 +28,18 @@ module('Unit | Service | mqtt', function(hooks) {
     });
   });
 
+  // Testing mqtt wrong connection
+  test('mqtt not connected', function(assert){
+    let service = this.owner.lookup('service:mqtt');
+    let done = assert.async();
+    service.connect(mqttHost.replace('8081','')).then(function(){
+      done();
+    }).catch(function(){
+      assert.ok(service);
+      done();
+    });
+  });
+
   // Testing mqtt subscribe
   test('mqtt subscribe', function(assert){
     let service = this.owner.lookup('service:mqtt');
