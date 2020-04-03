@@ -1,7 +1,6 @@
 import Service from '@ember/service';
 import Evented from '@ember/object/evented';
 
-import mqttjs from 'mqttjs';
 import { bind, later } from '@ember/runloop';
 import RSVP from 'rsvp';
 
@@ -28,21 +27,26 @@ export default class MqttService extends Service.extend(Evented) {
     if(typeof sPassword != 'undefined'){
       _oOptions['password'] = sPassword;
     }
-    this.client = mqttjs.connect(sHost, _oOptions);
-    let _fOnMessage = bind(this, this.onMessage);
-    this.client.on('message', _fOnMessage);
-    let _fOnConnect = bind(this, this.onConnect);
-    this.client.on('connect', _fOnConnect);
-    let _fOnReconnect = bind(this, this.onReconnect);
-    this.client.on('reconnect', _fOnReconnect);
-    let _fOnError = bind(this, this.onError);
-    this.client.on('error', _fOnError);
-    let _fOnDisconnect = bind(this, this.onDisconnect);
-    this.client.on('disconnect', _fOnDisconnect);
-    let _fOnClose = bind(this, this.onClose);
-    this.client.on('close', _fOnClose);
-    let _fOnOffline = bind(this, this.onOffline);
-    this.client.on('offline', _fOnOffline);
+    import('mqtt/dist/mqtt').then(module => {
+      const mqttjs = module.default;
+
+      this.client = mqttjs.connect(sHost, _oOptions);
+      let _fOnMessage = bind(this, this.onMessage);
+      this.client.on('message', _fOnMessage);
+      let _fOnConnect = bind(this, this.onConnect);
+      this.client.on('connect', _fOnConnect);
+      let _fOnReconnect = bind(this, this.onReconnect);
+      this.client.on('reconnect', _fOnReconnect);
+      let _fOnError = bind(this, this.onError);
+      this.client.on('error', _fOnError);
+      let _fOnDisconnect = bind(this, this.onDisconnect);
+      this.client.on('disconnect', _fOnDisconnect);
+      let _fOnClose = bind(this, this.onClose);
+      this.client.on('close', _fOnClose);
+      let _fOnOffline = bind(this, this.onOffline);
+      this.client.on('offline', _fOnOffline);
+    });
+
     return this.fConnecting;
   }
 

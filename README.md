@@ -18,14 +18,7 @@ Installation
 ```
 ember install ember-mqttjs
 ```
-Be sure that in your `ember-cli-build.js` you have the following rows to import ***mqtt*** *npm package*:
-```
-app.import('node_modules/mqtt/dist/mqtt.min.js',{
-  using: [
-    { transformation: 'amd', as: 'mqttjs' }
-  ]
-});
-```
+
 
 Usage
 ------------------------------------------------------------------------------
