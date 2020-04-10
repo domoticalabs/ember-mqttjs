@@ -24,14 +24,14 @@ Usage
 ------------------------------------------------------------------------------
 
 You have to import this service in your route or controller or component or service js class:
-```
+```js
 import { inject as service } from '@ember/service';
 ...
 @service mqtt;
 ```
 ### connect(host, [username], [password]): *RSVP.Promise*
 Connect to the mqtt host and register a listener to the `mqtt-message` event:
-```
+```js
 this.mqtt.connect('wss://test.mosquitto.org:8081').then( () => {
     // Do stuff on connection established
 });
@@ -40,7 +40,7 @@ this.mqtt.on('mqtt-message', (sTopic, sMessage) => {
 });
 ```
 ### subscribe(topic): *RSVP.Promise*
-```
+```js
 this.mqtt.subscribe('presence').then( (oGranted)=>{
     // Do stuff after succesfully subscription to mqttTopic
 });
@@ -50,14 +50,14 @@ this.mqtt.subscribe('presence').then( (oGranted)=>{
 * *qos*: is the granted QoS level on it
 
 ### publish(topic, message): *RSVP.Promise*
-```
+```js
 this.mqtt.publish('presence', 'Hello').then( () => {
     // Do stuff after successfully published message
 });
 ```
 
 ### unsubscribe(topic): *RSVP.Promise*
-```
+```js
 this.mqtt.unsubscribe('presence').then( (oGranted)=>{
     // Do stuff after succesfully unsubscription to mqttTopic
 });
@@ -65,7 +65,7 @@ this.mqtt.unsubscribe('presence').then( (oGranted)=>{
 
 ### mqtt-message [topic, message]: *Event*
 New mqtt message received.
-```
+```js
 this.mqtt.on('mqtt-message', (sTopic, sMessage) => {
     // Do stuff with topic and message parameters
 });
