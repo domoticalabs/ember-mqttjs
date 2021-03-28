@@ -2,7 +2,6 @@ import Service from '@ember/service';
 import Evented from '@ember/object/evented';
 
 import { bind, later } from '@ember/runloop';
-import RSVP from 'rsvp';
 
 export default class MqttService extends Service.extend(Evented) {
   client;
@@ -13,7 +12,7 @@ export default class MqttService extends Service.extend(Evented) {
     this.client = null;
     this.connected = false;
     let _self = this;
-    this.fConnecting = new RSVP.Promise( (fResolve, fReject) => {
+    this.fConnecting = new Promise( (fResolve, fReject) => {
       _self.fConnected = fResolve;
       _self.fDisconnected = fReject;
     });
@@ -50,63 +49,62 @@ export default class MqttService extends Service.extend(Evented) {
     return this.fConnecting;
   }
 
-  unsubscribe(sTopic){
-    let _self = this;
-    return new RSVP.Promise( (fResolve, fReject) => {
-      return _self.fConnecting.then( () => {
-        _self.client.unsubscribe(sTopic, (oError) => {
-          if(oError){
-            _self.fConnecting = new RSVP.Promise( (fResolve, fReject) => {
-              _self.fConnected = fResolve;
-              _self.fDisconnected = fReject;
-            } );
-            return fReject(oError);
-          }
-          return fResolve();
-        });
-      });
+  async unsubscribe(sTopic){
+    try{
+      await this.fConnecting;
+    } catch(oError) {
+      return Promise.reject(oError);
+    }
+    this.client.unsubscribe(sTopic, (oError) => {
+      if(oError){
+        let _self = this;
+        this.fConnecting = new Promise( (fResolve, fReject) => {
+          _self.fConnected = fResolve;
+          _self.fDisconnected = fReject;
+        } );
+        return Promise.reject(oError);
+      }
+      return Promise.resolve();
     });
   }
 
-  subscribe(sTopic) {
-    let _self = this;
-    return new RSVP.Promise( (fResolve, fReject) => {
-      return _self.fConnecting.then( () => {
-        _self.client.subscribe(sTopic, (oError, oGranted) => {
-          if(oError){
-            _self.fConnecting = new RSVP.Promise( (fResolve, fReject) => {
-              _self.fConnected = fResolve;
-              _self.fDisconnected = fReject;
-            } );
-            return fReject(oError);
-          }
-          return fResolve(oGranted);
-        });
-      }).catch( () => {
-        let _fSubscribe = bind(_self, _self.subscribe, sTopic);
-        return later(_fSubscribe, 100);
-      });
+  async subscribe(sTopic) {
+    try {
+      await this.fConnecting;
+    } catch {
+      let _fSubscribe = bind(this, this.subscribe, sTopic);
+      return later(await _fSubscribe, 100);
+    }
+    this.client.subscribe(sTopic, (oError, oGranted) => {
+      if(oError){
+        let _self = this;
+        this.fConnecting = new Promise( (fResolve, fReject) => {
+          _self.fConnected = fResolve;
+          _self.fDisconnected = fReject;
+        } );
+        return Promise.reject(oError);
+      }
+      return Promise.resolve(oGranted);
     });
   }
 
-  publish(sTopic, sMessage, oOptions) {
-    let _self = this;
-    return new RSVP.Promise( (fResolve, fReject) => {
-      return _self.fConnecting.then( () => {
-        _self.client.publish(sTopic, sMessage, oOptions, (oError) => {
-          if(oError){
-            _self.fConnecting = new RSVP.Promise( (fResolve, fReject) => {
-              _self.fConnected = fResolve;
-              _self.fDisconnected = fReject;
-            } );
-            return fReject(oError);
-          }
-          return fResolve();
-        });
-      }).catch( () => {
-        let _fPublish = bind(_self, _self.publish, sTopic, sMessage, oOptions);
-        return later(_fPublish, 100);
-      });
+  async publish(sTopic, sMessage, oOptions) {
+    try{
+      await this.fConnecting;
+    } catch {
+      let _fPublish = bind(this, this.publish, sTopic, sMessage, oOptions);
+      return later(await _fPublish, 100);
+    }
+    this.client.publish(sTopic, sMessage, oOptions, (oError) => {
+      if(oError){
+        let _self = this;
+        this.fConnecting = new Promise( (fResolve, fReject) => {
+          _self.fConnected = fResolve;
+          _self.fDisconnected = fReject;
+        } );
+        return Promise.reject(oError);
+      }
+      return Promise.resolve();
     });
   }
 
@@ -136,7 +134,7 @@ export default class MqttService extends Service.extend(Evented) {
     this.connected = false;
     this.trigger('mqtt-reconnect');
     let _self = this;
-    this.fConnecting = new RSVP.Promise( (fResolve, fReject) => {
+    this.fConnecting = new Promise( (fResolve, fReject) => {
       _self.fConnected = fResolve;
       _self.fDisconnected = fReject;
     });

@@ -41,19 +41,26 @@ module('Unit | Service | mqtt', function(hooks) {
   });
 
   // Testing mqtt subscribe
-  test('mqtt subscribe', function(assert){
+  test('mqtt subscribe', async function(assert){
     let service = this.owner.lookup('service:mqtt');
     let done = assert.async();
-    service.connect(mqttHost).then(()=>{
-      service.subscribe(mqttTopic).then((oGranted)=>{
-        assert.equal(oGranted[0].topic, mqttTopic);
-        done();
-      }).catch(()=>{
-        done();
-      });
-    }).catch(()=>{
+    try {
+      await service.connect(mqttHost);
+    } catch(oError) {
       done();
-    });
+      return oError;
+    }
+    let _oGranted;
+    try{
+      _oGranted = await service.subscribe(mqttTopic);
+    } catch(oError) {
+      done();
+      return oError;
+    }
+    if(_oGranted && _oGranted[0]) {
+      assert.equal(_oGranted[0].topic, mqttTopic);
+    }
+    done();
   });
 
   // Testing mqtt publish
