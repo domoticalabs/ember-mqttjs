@@ -2,18 +2,18 @@ import Service from '@ember/service';
 import Evented from '@ember/object/evented';
 import mqttjs from 'mqtt/dist/mqtt';
 
-import { bind, later } from '@ember/runloop';
+import { bind } from '@ember/runloop';
 
 export default class MqttService extends Service.extend(Evented) {
   client;
   connected;
 
-  constructor(){
+  constructor() {
     super(...arguments);
     this.client = null;
     this.connected = false;
     let _self = this;
-    this.fConnecting = new Promise( (fResolve, fReject) => {
+    this.fConnecting = new Promise((fResolve, fReject) => {
       _self.fConnected = fResolve;
       _self.fDisconnected = fReject;
     });
@@ -21,10 +21,10 @@ export default class MqttService extends Service.extend(Evented) {
 
   connect(sHost, sUsername, sPassword) {
     let _oOptions = {};
-    if(typeof sUsername != 'undefined'){
+    if (typeof sUsername != 'undefined') {
       _oOptions['username'] = sUsername;
     }
-    if(typeof sPassword != 'undefined'){
+    if (typeof sPassword != 'undefined') {
       _oOptions['password'] = sPassword;
     }
     this.client = mqttjs.connect(sHost, _oOptions);
@@ -46,19 +46,19 @@ export default class MqttService extends Service.extend(Evented) {
     return this.fConnecting;
   }
 
-  async unsubscribe(sTopic){
-    try{
+  async unsubscribe(sTopic) {
+    try {
       await this.fConnecting;
-    } catch(oError) {
+    } catch (oError) {
       return Promise.reject(oError);
     }
     this.client.unsubscribe(sTopic, (oError) => {
-      if(oError){
+      if (oError) {
         let _self = this;
-        this.fConnecting = new Promise( (fResolve, fReject) => {
+        this.fConnecting = new Promise((fResolve, fReject) => {
           _self.fConnected = fResolve;
           _self.fDisconnected = fReject;
-        } );
+        });
         return Promise.reject(oError);
       }
       return Promise.resolve();
@@ -68,19 +68,19 @@ export default class MqttService extends Service.extend(Evented) {
   async subscribe(sTopic) {
     try {
       await this.fConnecting;
-    } catch(oError) {
+    } catch (oError) {
       // let _fSubscribe = bind(this, this.subscribe, sTopic);
       // return later(await _fSubscribe, 100);
       return this.fDisconnected(oError);
     }
     return new Promise((fResolve, fReject) => {
       this.client.subscribe(sTopic, (oError, oGranted) => {
-        if(oError){
+        if (oError) {
           let _self = this;
-          this.fConnecting = new Promise( (fNewResolve, fNewReject) => {
+          this.fConnecting = new Promise((fNewResolve, fNewReject) => {
             _self.fConnected = fNewResolve;
             _self.fDisconnected = fNewReject;
-          } );
+          });
           return fReject(oError);
         }
         return fResolve(oGranted);
@@ -89,20 +89,20 @@ export default class MqttService extends Service.extend(Evented) {
   }
 
   async publish(sTopic, sMessage, oOptions) {
-    try{
+    try {
       await this.fConnecting;
-    } catch(oError) {
+    } catch (oError) {
       // let _fPublish = bind(this, this.publish, sTopic, sMessage, oOptions);
       // return later(await _fPublish, 100);
       return this.fDisconnected(oError);
     }
     this.client.publish(sTopic, sMessage, oOptions, (oError) => {
-      if(oError){
+      if (oError) {
         let _self = this;
-        this.fConnecting = new Promise( (fResolve, fReject) => {
+        this.fConnecting = new Promise((fResolve, fReject) => {
           _self.fConnected = fResolve;
           _self.fDisconnected = fReject;
-        } );
+        });
         return Promise.reject(oError);
       }
       return Promise.resolve();
@@ -135,19 +135,19 @@ export default class MqttService extends Service.extend(Evented) {
     this.connected = false;
     this.trigger('mqtt-reconnect');
     let _self = this;
-    this.fConnecting = new Promise( (fResolve, fReject) => {
+    this.fConnecting = new Promise((fResolve, fReject) => {
       _self.fConnected = fResolve;
       _self.fDisconnected = fReject;
     });
   }
 
-  onClose(){
+  onClose() {
     this.connected = false;
     this.trigger('mqtt-close');
     this.fDisconnected();
   }
 
-  onOffline(){
+  onOffline() {
     this.connected = false;
     this.trigger('mqtt-offline');
   }
