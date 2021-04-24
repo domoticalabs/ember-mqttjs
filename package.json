@@ -1,6 +1,6 @@
 {
   "name": "ember-mqttjs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Ember async service for connecting to mqtt broker through mqtt.js library.",
   "keywords": [
     "mqtt",
