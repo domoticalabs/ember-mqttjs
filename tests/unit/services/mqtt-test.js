@@ -22,11 +22,10 @@ module('Unit | Service | mqtt', function (hooks) {
     assert.expect(1);
     try {
       await service.connect(mqttHost);
-    } catch {
+      assert.ok(service);
+    } finally {
       done();
     }
-    assert.ok(service);
-    done();
   });
 
   // // Testing mqtt subscribe
@@ -36,43 +35,44 @@ module('Unit | Service | mqtt', function (hooks) {
     let done = assert.async();
     try {
       await service.connect(mqttHost);
-    } catch (oError) {
-      done();
-    }
-    let _oGranted;
-    try {
+      let _oGranted;
       _oGranted = await service.subscribe(mqttTopic);
-    } catch (oError) {
+      assert.equal(_oGranted[0].topic, mqttTopic);
+    } finally {
       done();
     }
-    assert.equal(_oGranted[0].topic, mqttTopic);
-    done();
   });
 
   // // Testing mqtt publish
-  test('mqtt publish', async function (assert) {
+  test('mqtt publish', function (assert) {
     assert.expect(2);
     let service = this.owner.lookup('service:mqtt');
     let done = assert.async();
-    service.on(mqttEvent, (sTopic, sMessage) => {
-      assert.equal(sTopic, mqttTopic);
-      assert.equal(sMessage, mqttMessage);
-      done();
-    });
-    try {
-      await service.connect(mqttHost);
-    } catch {
-      done();
-    }
-    try {
-      await service.subscribe(mqttTopic);
-    } catch {
-      done();
-    }
-    try {
-      await service.publish(mqttTopic, mqttMessage);
-    } catch {
-      done();
-    }
+    service
+      .connect(mqttHost)
+      .then(() => {
+        service
+          .subscribe(mqttTopic)
+          .then(() => {
+            service
+              .publish(mqttTopic, mqttMessage)
+              .then(() => {
+                service.on(mqttEvent, (sTopic, sMessage) => {
+                  assert.equal(sTopic, mqttTopic);
+                  assert.equal(sMessage, mqttMessage);
+                  done();
+                });
+              })
+              .catch(() => {
+                done();
+              });
+          })
+          .catch(() => {
+            done();
+          });
+      })
+      .catch(() => {
+        done();
+      });
   });
 });
