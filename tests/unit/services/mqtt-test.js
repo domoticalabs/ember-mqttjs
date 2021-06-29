@@ -1,4 +1,4 @@
-import { module, test } from 'qunit';
+import { done, module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 module('Unit | Service | mqtt', function (hooks) {
@@ -15,88 +15,78 @@ module('Unit | Service | mqtt', function (hooks) {
     assert.ok(service);
   });
 
-  // Testing mqtt connect
-  test('mqtt connect', function (assert) {
+  //Testing mqtt connect
+  test('mqtt connect', async function (assert) {
     let service = this.owner.lookup('service:mqtt');
     let done = assert.async();
-    service
-      .connect(mqttHost)
-      .then(function () {
-        assert.ok(service);
-        done();
-      })
-      .catch(function () {
-        done();
-      });
+    assert.expect(1);
+    try {
+      await service.connect(mqttHost);
+    } catch {
+      done();
+    }
+    assert.ok(service);
+    done();
   });
 
-  // Testing mqtt wrong connection
-  test('mqtt not connected', function (assert) {
-    let service = this.owner.lookup('service:mqtt');
-    let done = assert.async();
-    service
-      .connect(mqttHost.replace('8081', ''))
-      .then(function () {
-        done();
-      })
-      .catch(function () {
-        assert.ok(service);
-        done();
-      });
-  });
+  // // Testing mqtt wrong connection
+  // test('mqtt not connected', async function (assert) {
+  //   let service = this.owner.lookup('service:mqtt');
+  //   let done = assert.async();
+  //   assert.expect(1);
+  //   try {
+  //     await service.connect(mqttHost.replace('8081', ''));
+  //   } catch {
+  //     assert.ok(service);
+  //     done();
+  //   }
+  //   done();
+  // });
 
-  // Testing mqtt subscribe
+  // // Testing mqtt subscribe
   test('mqtt subscribe', async function (assert) {
+    assert.expect(1);
     let service = this.owner.lookup('service:mqtt');
     let done = assert.async();
     try {
       await service.connect(mqttHost);
     } catch (oError) {
       done();
-      return oError;
     }
     let _oGranted;
     try {
       _oGranted = await service.subscribe(mqttTopic);
     } catch (oError) {
       done();
-      return oError;
     }
-    if (_oGranted && _oGranted[0]) {
-      assert.equal(_oGranted[0].topic, mqttTopic);
-    }
+    assert.equal(_oGranted[0].topic, mqttTopic);
     done();
   });
 
-  // Testing mqtt publish
-  test('mqtt publish', function (assert) {
+  // // Testing mqtt publish
+  test('mqtt publish', async function (assert) {
+    assert.expect(2);
     let service = this.owner.lookup('service:mqtt');
     let done = assert.async();
-    service
-      .connect(mqttHost)
-      .then(() => {
-        service
-          .subscribe(mqttTopic)
-          .then(() => {
-            service
-              .publish(mqttTopic, mqttMessage)
-              .then(() => {
-                service.on(mqttEvent, (sTopic, sMessage) => {
-                  assert.equal(sTopic, mqttTopic);
-                  assert.equal(sMessage, mqttMessage);
-                  done();
-                });
-              })
-              .catch(() => {
-                done();
-              });
-          })
-          .catch(() => {
-            done();
-          });
-      })
-      .catch(() => {
-        done();
-      });
+    service.on(mqttEvent, (sTopic, sMessage) => {
+      assert.equal(sTopic, mqttTopic);
+      assert.equal(sMessage, mqttMessage);
+      done();
+    });
+    try {
+      await service.connect(mqttHost);
+    } catch {
+      done();
+    }
+    try {
+      await service.subscribe(mqttTopic);
+    } catch {
+      done();
+    }
+    try {
+      await service.publish(mqttTopic, mqttMessage);
+    } catch {
+      done();
+    }
   });
 });
