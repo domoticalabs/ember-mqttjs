@@ -1,4 +1,4 @@
-import { done, module, test } from 'qunit';
+import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
 module('Unit | Service | mqtt', function (hooks) {
@@ -28,20 +28,6 @@ module('Unit | Service | mqtt', function (hooks) {
     assert.ok(service);
     done();
   });
-
-  // // Testing mqtt wrong connection
-  // test('mqtt not connected', async function (assert) {
-  //   let service = this.owner.lookup('service:mqtt');
-  //   let done = assert.async();
-  //   assert.expect(1);
-  //   try {
-  //     await service.connect(mqttHost.replace('8081', ''));
-  //   } catch {
-  //     assert.ok(service);
-  //     done();
-  //   }
-  //   done();
-  // });
 
   // // Testing mqtt subscribe
   test('mqtt subscribe', async function (assert) {
