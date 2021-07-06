@@ -24,7 +24,7 @@
 #$   - scenario: ember-classic
 #$   - scenario: embroider-safe
 #$   - scenario: embroider-optimized
-#$ nodeVersion: 10.x
+#$ nodeVersion: 14.x
 #$ packageManager: npm
 #
 
@@ -37,7 +37,7 @@ on:
   pull_request:
 
 env:
-  NODE_VERSION: '10.x'
+  NODE_VERSION: '14.x'
 
 jobs:
   lint:
@@ -45,10 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-
-    - uses: actions/setup-node@v2-beta
+    - uses: actions/setup-node@v2
       with:
         node-version: '${{ env.NODE_VERSION }}'
 
@@ -90,10 +87,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-
-    - uses: actions/setup-node@v2-beta
+    - uses: actions/setup-node@v2
       with:
         node-version: '${{ env.NODE_VERSION }}'
 
@@ -135,10 +129,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-
-    - uses: actions/setup-node@v2-beta
+    - uses: actions/setup-node@v2
       with:
         node-version: '${{ env.NODE_VERSION }}'
 
@@ -187,10 +178,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-
-    - uses: actions/setup-node@v2-beta
+    - uses: actions/setup-node@v2
       with:
         node-version: '${{ env.NODE_VERSION }}'
 
