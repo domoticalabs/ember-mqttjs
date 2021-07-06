@@ -24,7 +24,7 @@
 #$   - scenario: ember-classic
 #$   - scenario: embroider-safe
 #$   - scenario: embroider-optimized
-#$ nodeVersion: 14.x
+#$ nodeVersion: 10.x
 #$ packageManager: npm
 #
 
@@ -37,7 +37,7 @@ on:
   pull_request:
 
 env:
-  NODE_VERSION: '14.x'
+  NODE_VERSION: '10.x'
 
 jobs:
   lint:
