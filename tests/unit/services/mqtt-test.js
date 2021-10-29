@@ -1,8 +1,13 @@
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
+import sinon from 'sinon';
+import mqttjs from 'mqtt/dist/mqtt';
+
+// class MqttServiceStub extends Service.extend(Evented) {}
+// class ClientServiceStub extends Service.extend(Evented) {}
 
 module('Unit | Service | mqtt', function (hooks) {
-  let mqttHost = 'wss://test.mosquitto.org:8081';
+  let mqttHost = 'ws://localhost:8883';
   let mqttTopic = 'presence';
   let mqttMessage = 'Hello';
   let mqttEvent = 'mqtt-message';
@@ -20,11 +25,19 @@ module('Unit | Service | mqtt', function (hooks) {
     let service = this.owner.lookup('service:mqtt');
     let done = assert.async();
     assert.expect(1);
+    let originalClient = service.client;
+    service.client = {
+      on: () => {},
+    };
+    sinon.stub(mqttjs, 'connect').returns(service.client);
+    sinon.stub(service, 'connect').returns(Promise.resolve());
     try {
       await service.connect(mqttHost);
       assert.ok(service);
     } finally {
       done();
+      service.client = originalClient;
+      sinon.restore();
     }
   });
 
