@@ -2,15 +2,19 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import sinon from 'sinon';
 import mqttjs from 'mqtt/dist/mqtt';
+import Service from '@ember/service';
+import Evented from '@ember/object/evented';
+import { later } from '@ember/runloop';
 
-// class MqttServiceStub extends Service.extend(Evented) {}
-// class ClientServiceStub extends Service.extend(Evented) {}
+class MqttServiceStub extends Service.extend(Evented) {}
 
 module('Unit | Service | mqtt', function (hooks) {
   let mqttHost = 'ws://localhost:8883';
   let mqttTopic = 'presence';
   let mqttMessage = 'Hello';
   let mqttEvent = 'mqtt-message';
+
+  let mqttServiceStub;
 
   setupTest(hooks);
 
@@ -25,18 +29,32 @@ module('Unit | Service | mqtt', function (hooks) {
     let service = this.owner.lookup('service:mqtt');
     let done = assert.async();
     assert.expect(1);
-    let originalClient = service.client;
-    service.client = {
-      on: () => {},
-    };
-    sinon.stub(mqttjs, 'connect').returns(service.client);
-    sinon.stub(service, 'connect').returns(Promise.resolve());
+    mqttServiceStub = new MqttServiceStub();
+    sinon.replace(
+      mqttjs,
+      'connect',
+      sinon.fake(() => {
+        later(() => {
+          mqttServiceStub.trigger('connect');
+        }, 100);
+        return {
+          on: (sEvent) => {
+            mqttServiceStub.on(sEvent, () => {
+              if (sEvent === 'connect') {
+                return service.onConnect();
+              }
+            });
+          },
+        };
+      })
+    );
     try {
       await service.connect(mqttHost);
       assert.ok(service);
+    } catch (e) {
+      assert.ok(false);
     } finally {
       done();
-      service.client = originalClient;
       sinon.restore();
     }
   });

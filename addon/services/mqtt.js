@@ -1,6 +1,7 @@
 import Service from '@ember/service';
 import Evented from '@ember/object/evented';
 import mqttjs from 'mqtt/dist/mqtt';
+import { isEmpty } from '@ember/utils';
 
 import { bind } from '@ember/runloop';
 
@@ -12,19 +13,18 @@ export default class MqttService extends Service.extend(Evented) {
     super(...arguments);
     this.client = null;
     this.connected = false;
-    let _self = this;
     this.fConnecting = new Promise((fResolve, fReject) => {
-      _self.fConnected = fResolve;
-      _self.fDisconnected = fReject;
+      this.fConnected = fResolve;
+      this.fDisconnected = fReject;
     });
   }
 
   connect(sHost, sUsername, sPassword) {
     let _oOptions = {};
-    if (typeof sUsername != 'undefined') {
+    if (!isEmpty(sUsername)) {
       _oOptions['username'] = sUsername;
     }
-    if (typeof sPassword != 'undefined') {
+    if (!isEmpty(sPassword)) {
       _oOptions['password'] = sPassword;
     }
     this.client = mqttjs.connect(sHost, _oOptions);
@@ -54,10 +54,9 @@ export default class MqttService extends Service.extend(Evented) {
     }
     this.client.unsubscribe(sTopic, (oError) => {
       if (oError) {
-        let _self = this;
         this.fConnecting = new Promise((fResolve, fReject) => {
-          _self.fConnected = fResolve;
-          _self.fDisconnected = fReject;
+          this.fConnected = fResolve;
+          this.fDisconnected = fReject;
         });
         return Promise.reject(oError);
       }
@@ -76,10 +75,9 @@ export default class MqttService extends Service.extend(Evented) {
     return new Promise((fResolve, fReject) => {
       this.client.subscribe(sTopic, (oError, oGranted) => {
         if (oError) {
-          let _self = this;
           this.fConnecting = new Promise((fNewResolve, fNewReject) => {
-            _self.fConnected = fNewResolve;
-            _self.fDisconnected = fNewReject;
+            this.fConnected = fNewResolve;
+            this.fDisconnected = fNewReject;
           });
           return fReject(oError);
         }
@@ -98,10 +96,9 @@ export default class MqttService extends Service.extend(Evented) {
     }
     this.client.publish(sTopic, sMessage, oOptions, (oError) => {
       if (oError) {
-        let _self = this;
         this.fConnecting = new Promise((fResolve, fReject) => {
-          _self.fConnected = fResolve;
-          _self.fDisconnected = fReject;
+          this.fConnected = fResolve;
+          this.fDisconnected = fReject;
         });
         return Promise.reject(oError);
       }
@@ -134,10 +131,9 @@ export default class MqttService extends Service.extend(Evented) {
   onReconnect() {
     this.connected = false;
     this.trigger('mqtt-reconnect');
-    let _self = this;
     this.fConnecting = new Promise((fResolve, fReject) => {
-      _self.fConnected = fResolve;
-      _self.fDisconnected = fReject;
+      this.fConnected = fResolve;
+      this.fDisconnected = fReject;
     });
   }
 
