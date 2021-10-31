@@ -19,6 +19,10 @@ export default class MqttService extends Service.extend(Evented) {
     });
   }
 
+  get isConnected() {
+    return this.connected;
+  }
+
   connect(sHost, sUsername, sPassword) {
     let _oOptions = {};
     if (!isEmpty(sUsername)) {
@@ -52,7 +56,7 @@ export default class MqttService extends Service.extend(Evented) {
     } catch (oError) {
       return Promise.reject(oError);
     }
-    this.client.unsubscribe(sTopic, (oError) => {
+    return this.client.unsubscribe(sTopic, (oError) => {
       if (oError) {
         this.fConnecting = new Promise((fResolve, fReject) => {
           this.fConnected = fResolve;
@@ -65,36 +69,34 @@ export default class MqttService extends Service.extend(Evented) {
   }
 
   async subscribe(sTopic) {
-    try {
-      await this.fConnecting;
-    } catch (oError) {
-      // let _fSubscribe = bind(this, this.subscribe, sTopic);
-      // return later(await _fSubscribe, 100);
-      return this.fDisconnected(oError);
+    if (!this.isConnected) {
+      try {
+        await this.fConnecting;
+      } catch (oError) {
+        return this.fDisconnected(oError);
+      }
     }
-    return new Promise((fResolve, fReject) => {
-      this.client.subscribe(sTopic, (oError, oGranted) => {
-        if (oError) {
-          this.fConnecting = new Promise((fNewResolve, fNewReject) => {
-            this.fConnected = fNewResolve;
-            this.fDisconnected = fNewReject;
-          });
-          return fReject(oError);
-        }
-        return fResolve(oGranted);
-      });
+    return this.client.subscribe(sTopic, (oError, oGranted) => {
+      if (oError) {
+        this.fConnecting = new Promise((fResolve, fReject) => {
+          this.fConnected = fResolve;
+          this.fDisconnected = fReject;
+        });
+        return Promise.reject(oError);
+      }
+      return Promise.resolve(oGranted);
     });
   }
 
   async publish(sTopic, sMessage, oOptions) {
-    try {
-      await this.fConnecting;
-    } catch (oError) {
-      // let _fPublish = bind(this, this.publish, sTopic, sMessage, oOptions);
-      // return later(await _fPublish, 100);
-      return this.fDisconnected(oError);
+    if (!this.isConnected) {
+      try {
+        await this.fConnecting;
+      } catch (oError) {
+        return this.fDisconnected(oError);
+      }
     }
-    this.client.publish(sTopic, sMessage, oOptions, (oError) => {
+    return this.client.publish(sTopic, sMessage, oOptions, (oError) => {
       if (oError) {
         this.fConnecting = new Promise((fResolve, fReject) => {
           this.fConnected = fResolve;
@@ -146,5 +148,6 @@ export default class MqttService extends Service.extend(Evented) {
   onOffline() {
     this.connected = false;
     this.trigger('mqtt-offline');
+    this.fDisconnected();
   }
 }
