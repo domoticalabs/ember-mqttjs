@@ -6,7 +6,7 @@ import Service from '@ember/service';
 import Evented from '@ember/object/evented';
 import { later } from '@ember/runloop';
 
-class MqttServiceStub extends Service.extend(Evented) { }
+class MqttServiceStub extends Service.extend(Evented) {}
 
 module('Unit | Service | mqtt', function (hooks) {
   let mqttHost = 'ws://localhost:8883';
