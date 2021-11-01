@@ -36,18 +36,21 @@ on:
       - master
   pull_request:
 
-env:
-  NODE_VERSION: '10.x'
-
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node:
+          - "12"
+          - "14"
+          - "16"
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
       with:
-        node-version: '${{ env.NODE_VERSION }}'
+        node-version: '${{ matrix.node }}'
 
     - name: Get package manager's global cache path
       id: global-cache-dir-path
@@ -84,12 +87,16 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         browser: [chrome]
+        node:
+          - "12"
+          - "14"
+          - "16"
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
       with:
-        node-version: '${{ env.NODE_VERSION }}'
+        node-version: '${{ matrix.node }}'
 
     - name: Get package manager's global cache path
       id: global-cache-dir-path
@@ -126,12 +133,16 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         browser: [chrome]
+        node:
+          - "12"
+          - "14"
+          - "16"
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
       with:
-        node-version: '${{ env.NODE_VERSION }}'
+        node-version: '${{ matrix.node }}'
 
     - name: Get package manager's global cache path
       id: global-cache-dir-path
@@ -173,12 +184,16 @@ jobs:
           embroider-safe,
           embroider-optimized
         ]
+        node:
+          - "12"
+          - "14"
+          - "16"
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
       with:
-        node-version: '${{ env.NODE_VERSION }}'
+        node-version: '${{ matrix.node }}'
 
     - name: Get package manager's global cache path
       id: global-cache-dir-path
