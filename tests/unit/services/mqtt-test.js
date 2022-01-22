@@ -135,7 +135,7 @@ module('Unit | Service | mqtt', function (hooks) {
     try {
       await service.connect(mqttHost);
       let _oGranted = await service.subscribe(mqttTopic);
-      assert.equal(_oGranted[0].topic, mqttTopic);
+      assert.strictEqual(_oGranted[0].topic, mqttTopic);
     } catch {
       assert.ok(false);
     } finally {
@@ -174,7 +174,7 @@ module('Unit | Service | mqtt', function (hooks) {
       await service.subscribe(mqttTopic);
       assert.ok(false);
     } catch (oError) {
-      assert.equal(oError.message, 'Error');
+      assert.strictEqual(oError.message, 'Error');
     } finally {
       done();
     }
@@ -217,14 +217,14 @@ module('Unit | Service | mqtt', function (hooks) {
     try {
       await service.connect(mqttHost);
       let _oGranted = await service.subscribe(mqttTopic);
-      assert.equal(_oGranted[0].topic, mqttTopic);
+      assert.strictEqual(_oGranted[0].topic, mqttTopic);
     } catch {
       assert.ok(false);
     }
     try {
       service.on('mqtt-message', (sTopic, sMessage) => {
-        assert.equal(sTopic, mqttTopic);
-        assert.equal(sMessage, mqttMessage);
+        assert.strictEqual(sTopic, mqttTopic);
+        assert.strictEqual(sMessage, mqttMessage);
       });
       await service.publish(mqttTopic, mqttMessage);
     } catch {
@@ -267,7 +267,7 @@ module('Unit | Service | mqtt', function (hooks) {
     try {
       await service.connect(mqttHost);
       let _oGranted = await service.subscribe(mqttTopic);
-      assert.equal(_oGranted[0].topic, mqttTopic);
+      assert.strictEqual(_oGranted[0].topic, mqttTopic);
     } catch {
       assert.ok(false);
     }
@@ -275,7 +275,7 @@ module('Unit | Service | mqtt', function (hooks) {
       await service.publish(mqttTopic, mqttMessage);
       assert.ok(false);
     } catch (oError) {
-      assert.equal(oError.message, 'Error');
+      assert.strictEqual(oError.message, 'Error');
     } finally {
       done();
     }
